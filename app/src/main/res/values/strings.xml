@@ -13,4 +13,8 @@
     <string name="Button0">0</string>
     <string name="DeleteButton">&lt;</string>
     <string name="hello_blank_fragment">temp</string>
+    <string name="dateTo">До</string>
+    <string name="dateFrom">С</string>
+    <string name="selectDateTo">1970–01–01</string>
+    <string name="selectDateFrom">1970–01–01</string>
 </resources>

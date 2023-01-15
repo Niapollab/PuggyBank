@@ -9,7 +9,8 @@ import android.view.ViewGroup
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
-import com.github.aachartmodel.aainfographics.aaoptionsmodel.AADataLabels
+import android.app.DatePickerDialog
+import java.time.LocalDate
 
 /**
  * A simple [Fragment] subclass.
@@ -19,10 +20,37 @@ import com.github.aachartmodel.aainfographics.aaoptionsmodel.AADataLabels
 class MainScreenFragment : Fragment() {
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding!!
+    private var dateFrom: LocalDate? = null
+    private var dateTo: LocalDate? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val categories = IntArray(30) { it + 1 }.map { it.toString() }
+
+        val now = LocalDate.now()
+        this.dateFrom = LocalDate.of(now.year, now.month, 1)
+        this.dateTo = now
+
+        this.updateSelectDateToText()
+        this.binding.selectDateFrom.text = this.dateFrom.toString()
+
+        this.binding.selectDateTo.setOnClickListener {
+            val dpd = DatePickerDialog(requireActivity(), { _ , year, month, day ->
+                this.dateTo = LocalDate.of(year, month, day)
+                this.updateSelectDateToText()
+            }, this.dateTo!!.year, this.dateTo!!.monthValue, this.dateTo!!.dayOfMonth)
+
+            dpd.show()
+        }
+
+        this.binding.selectDateFrom.setOnClickListener {
+            val dpd = DatePickerDialog(requireActivity(), { _, year, month, day ->
+                this.dateFrom = LocalDate.of(year, month, day)
+                this.updateSelectDateFromText()
+            }, this.dateFrom!!.year, this.dateFrom!!.monthValue, this.dateFrom!!.dayOfMonth)
+
+            dpd.show()
+        }
 
         val chart = AAChartModel()
             .chartType(AAChartType.Spline)
@@ -42,6 +70,14 @@ class MainScreenFragment : Fragment() {
             )
 
         this.binding.aaChartView.aa_drawChartWithChartModel(chart)
+    }
+
+    private fun updateSelectDateToText() {
+        this.binding.selectDateTo.text = this.dateTo.toString()
+    }
+
+    private fun updateSelectDateFromText() {
+        this.binding.selectDateFrom.text = this.dateFrom.toString()
     }
 
     override fun onCreateView(
