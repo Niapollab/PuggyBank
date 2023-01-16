@@ -1,4 +1,4 @@
-package ru.vsu.puggybank
+package ru.vsu.puggybank.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

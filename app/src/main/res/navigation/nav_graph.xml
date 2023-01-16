@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/lockScreenFragment"
-        android:name="ru.vsu.puggybank.LockScreenFragment"
+        android:name="ru.vsu.puggybank.fragments.LockScreenFragment"
         android:label="fragment_lock_screen"
         tools:layout="@layout/fragment_lock_screen">
         <action
@@ -16,7 +16,7 @@
 
     <fragment
         android:id="@+id/mainScreenFragment"
-        android:name="ru.vsu.puggybank.MainScreenFragment"
+        android:name="ru.vsu.puggybank.fragments.MainScreenFragment"
         android:label="fragment_main_screen"
         tools:layout="@layout/fragment_main_screen"/>
 
