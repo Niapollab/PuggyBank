@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import ru.vsu.puggybank.PinCodeBuilder
 import ru.vsu.puggybank.R
 import ru.vsu.puggybank.databinding.FragmentLockScreenBinding
+import ru.vsu.puggybank.privacy.BiometryManager
 import ru.vsu.puggybank.privacy.MockPinCodeValidator
 import ru.vsu.puggybank.privacy.PinCodeValidator
 
@@ -24,7 +25,8 @@ class LockScreenFragment : Fragment() {
     private val pinValidator: PinCodeValidator = MockPinCodeValidator("1234")
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLockScreenBinding.inflate(inflater, container, false)
@@ -50,6 +52,9 @@ class LockScreenFragment : Fragment() {
         }
         binding.deleteButton.setOnClickListener(::onDeleteSymbol)
 
+        val biometryManager = BiometryManager(::onUnlock, this)
+        biometryManager.activateBiometry()
+
         return binding.root
     }
 
@@ -68,11 +73,15 @@ class LockScreenFragment : Fragment() {
 
         if (pinValidator.isValid(pin))
         {
-            findNavController().navigate(R.id.action_lockScreenFragment_to_mainScreenFragment)
+            this.onUnlock()
             return
         }
 
         handeIncorrectPin()
+    }
+
+    private fun onUnlock() {
+        findNavController().navigate(R.id.action_lockScreenFragment_to_mainScreenFragment)
     }
 
     private fun handeIncorrectPin() {
