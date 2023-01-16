@@ -73,7 +73,7 @@ class LockScreenFragment : Fragment() {
 
         if (pinValidator.isValid(pin))
         {
-            this.onUnlock()
+            onUnlock()
             return
         }
 
@@ -85,7 +85,7 @@ class LockScreenFragment : Fragment() {
     }
 
     private fun handeIncorrectPin() {
-        Toast.makeText(this.activity, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, "Incorrect PIN", Toast.LENGTH_SHORT).show()
 
         pinCodeBuilder.dropPin()
         for (symbol in pinSymbols)
