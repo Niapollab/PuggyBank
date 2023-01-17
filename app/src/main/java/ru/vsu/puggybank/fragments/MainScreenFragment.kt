@@ -1,5 +1,6 @@
 package ru.vsu.puggybank.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -10,6 +11,11 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import android.app.DatePickerDialog
+import android.text.InputType
+import android.widget.EditText
+import kotlinx.coroutines.runBlocking
+import ru.vsu.puggybank.transactions.banking.MockCredentialProvider
+import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import java.time.LocalDate
 
 /**
@@ -22,6 +28,8 @@ class MainScreenFragment : Fragment() {
     private val binding get() = _binding!!
     private var dateFrom: LocalDate? = null
     private var dateTo: LocalDate? = null
+    private val authProvider = GazpromAuthProvider()
+    private val mockCredentialsProvider = MockCredentialProvider("", "")
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -69,7 +77,37 @@ class MainScreenFragment : Fragment() {
                 )
             )
 
+        runBlocking {
+            try {
+                authProvider.auth(mockCredentialsProvider.getCredentials())
+            } catch (e: Exception) {
+                showDoubleFactorCodeEnterDialog()
+            }
+        }
+
         this.binding.aaChartView.aa_drawChartWithChartModel(chart)
+    }
+
+    private fun showDoubleFactorCodeEnterDialog(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        builder.setTitle("Title")
+
+        val input = EditText(activity)
+        input.hint = "Enter double factor code"
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+
+        builder.setPositiveButton("Submit") { _, _ ->
+            runBlocking {
+                val code = input.text.toString()
+                authProvider.auth(mockCredentialsProvider.getCredentials(), code)
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.show()
     }
 
     private fun updateSelectDateToText() {
@@ -90,6 +128,7 @@ class MainScreenFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        authProvider.close()
         _binding = null
     }
 }
