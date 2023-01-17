@@ -35,9 +35,6 @@ class MainScreenFragment : Fragment() {
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding!!
 
-    private var _credentialManager: SharedPreferencesCredentialManager? = null
-    private val credentialManager get() = _credentialManager!!
-
     private var dateFrom: LocalDate? = null
     private var dateTo: LocalDate? = null
     private val data = """
@@ -52,7 +49,6 @@ class MainScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences("credentials.xml", Context.MODE_PRIVATE)!!, "gazprombank")
 
         initDates()
         val format = Json { isLenient = true }
@@ -159,39 +155,8 @@ class MainScreenFragment : Fragment() {
                     .name("Приход")
                     .data(inTransactionsByDays as Array<Any>)),
             )
-
-        runBlocking {
-            try {
-                authProvider.auth(credentialManager.getCredentials())
-            } catch (e: Exception) {
-                showDoubleFactorCodeEnterDialog()
-            }
-        }
-
-        this.binding.aaChartView.aa_drawChartWithChartModel(getChartModel())
     }
 
-    private fun showDoubleFactorCodeEnterDialog(){
-        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        builder.setTitle("Title")
-
-        val input = EditText(activity)
-        input.hint = "Enter double factor code"
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        builder.setView(input)
-
-        builder.setPositiveButton("Submit") { _, _ ->
-            runBlocking {
-                val code = input.text.toString()
-                authProvider.auth(credentialManager.getCredentials(), code)
-            }
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ ->
-            dialog.cancel()
-        }
-
-        builder.show()
-    }
 
     private fun updateSelectDateFromText() {
         binding.selectDateFrom.text = dateFrom.toString()

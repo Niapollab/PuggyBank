@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">PuggyBank</string>
-    <string name="OneButton">123</string>
     <string name="Button1">1</string>
     <string name="Button2">2</string>
     <string name="Button3">3</string>
@@ -18,4 +17,9 @@
     <string name="selectDateTo">1970–01–01</string>
     <string name="selectDateFrom">1970–01–01</string>
     <string name="transactionText">%s, %s</string>
+    <string name="LoginText">Вход</string>
+    <string name="tryLoginButton">Войти</string>
+    <string name="phoneNumberText">Номер телефона</string>
+    <string name="passwordText">Пароль</string>
+    <string name="startPhoneNumber">+7</string>
 </resources>

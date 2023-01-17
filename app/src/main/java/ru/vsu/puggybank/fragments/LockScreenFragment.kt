@@ -81,7 +81,7 @@ class LockScreenFragment : Fragment() {
     }
 
     private fun onUnlock() {
-        findNavController().navigate(R.id.action_lockScreenFragment_to_mainScreenFragment)
+        findNavController().navigate(R.id.action_lockScreenFragment_to_loginScreenFragment)
     }
 
     private fun handeIncorrectPin() {
