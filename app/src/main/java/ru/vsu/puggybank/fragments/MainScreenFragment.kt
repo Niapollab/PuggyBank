@@ -12,12 +12,9 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import android.app.DatePickerDialog
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import android.widget.TextView
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import ru.vsu.puggybank.R
-import ru.vsu.puggybank.dto.gazprom.GazpromResponse
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
-import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
 import ru.vsu.puggybank.dto.view.Transaction
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
@@ -43,8 +40,9 @@ class MainScreenFragment : Fragment() {
 
         initDates()
         val format = Json { isLenient = true }
-        val a = format.decodeFromString<GazpromResponse>(data)
-        allTransactions = mapGazpromResponseToTransactions(a)
+//        val a = format.decodeFromString<GazpromResponse>(data)
+//        allTransactions = mapGazpromHistoryResponseToTransactions(a)
+        allTransactions = emptyList()
         updateTransactions()
 
         updateSelectDateToText()
