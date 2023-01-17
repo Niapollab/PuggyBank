@@ -159,7 +159,7 @@ class MainScreenFragment : Fragment() {
             }
         }
 
-        this.binding.aaChartView.aa_drawChartWithChartModel(chart)
+        this.binding.aaChartView.aa_drawChartWithChartModel(getChartModel())
     }
 
     private fun showDoubleFactorCodeEnterDialog(){
@@ -182,10 +182,6 @@ class MainScreenFragment : Fragment() {
         }
 
         builder.show()
-    }
-
-    private fun updateSelectDateToText() {
-        this.binding.selectDateTo.text = this.dateTo.toString()
     }
 
     private fun updateSelectDateFromText() {
