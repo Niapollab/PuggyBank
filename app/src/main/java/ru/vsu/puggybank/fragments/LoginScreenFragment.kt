@@ -3,6 +3,7 @@ package ru.vsu.puggybank.fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.provider.Settings.Global
 import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,10 +12,11 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import ru.vsu.puggybank.R
 import ru.vsu.puggybank.databinding.FragmentLoginScreenBinding
 import ru.vsu.puggybank.transactions.banking.AuthException
+import ru.vsu.puggybank.transactions.banking.Credentials
 import ru.vsu.puggybank.transactions.banking.DoubleFactorAuthRequiredException
 import ru.vsu.puggybank.transactions.banking.SharedPreferencesCredentialManager
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
@@ -58,9 +60,23 @@ class LoginScreenFragment : Fragment() {
             val n = binding.phoneNumberText.text.toString()
             val pass = binding.editPasswordText.text.toString()
 
-            runBlocking {
+//            runBlocking {
+//                try {
+//                    authProvider.auth(credentialManager.getCredentials())
+//                } catch (err: DoubleFactorAuthRequiredException) {
+//                    credentialManager.setLogin(n)
+//                    credentialManager.setPassword(pass)
+//                    showDoubleFactorCodeEnterDialog()
+//                } catch (err: Exception) {
+//                    Toast.makeText(context, "Не удалось войти", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+
+            GlobalScope.launch (Dispatchers.Main) {
                 try {
-                    authProvider.auth(credentialManager.getCredentials())
+                    coroutineScope {
+                        authProvider.auth(Credentials(n, pass))
+                    }
                 } catch (err: DoubleFactorAuthRequiredException) {
                     credentialManager.setLogin(n)
                     credentialManager.setPassword(pass)
@@ -69,13 +85,12 @@ class LoginScreenFragment : Fragment() {
                     Toast.makeText(context, "Не удалось войти", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
 
         return binding.root
     }
 
-    private fun showDoubleFactorCodeEnterDialog() {
+    private suspend fun showDoubleFactorCodeEnterDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setTitle("Введите код")
 
@@ -84,11 +99,23 @@ class LoginScreenFragment : Fragment() {
         builder.setView(input)
 
         builder.setPositiveButton("Принять") { _, _ ->
-            runBlocking {
-                val code = input.text.toString()
+//            runBlocking {
+//                val code = input.text.toString()
+//                try {
+//                    authProvider.auth(credentialManager.getCredentials(), code)
+//                    onLogin()
+//                } catch (err: AuthException) {
+//                    Toast.makeText(context, "Неверный код", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+
+            val code = input.text.toString()
+            GlobalScope.launch (Dispatchers.Main) {
                 try {
-                    authProvider.auth(credentialManager.getCredentials(), code)
-                    onLogin()
+                    coroutineScope {
+                        authProvider.auth(credentialManager.getCredentials(), code)
+                        onLogin()
+                    }
                 } catch (err: AuthException) {
                     Toast.makeText(context, "Неверный код", Toast.LENGTH_SHORT).show()
                 }
