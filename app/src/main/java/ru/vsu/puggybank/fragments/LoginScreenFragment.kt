@@ -19,6 +19,7 @@ import ru.vsu.puggybank.transactions.banking.Credentials
 import ru.vsu.puggybank.transactions.banking.DoubleFactorAuthRequiredException
 import ru.vsu.puggybank.transactions.banking.SharedPreferencesCredentialManager
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
+import ru.vsu.puggybank.transactions.banking.gazprom.GazpromClient
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSession
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
 
@@ -43,8 +44,10 @@ class LoginScreenFragment : Fragment() {
         _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences("credentials.xml", Context.MODE_PRIVATE)!!, "gazprombank")
         _sessionManager = GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!)
 
-        if (isValidSession(sessionManager.session)) {
-            onLogin()
+        runBlocking {
+            if (isValidSession(sessionManager.session)) {
+                onLogin()
+            }
         }
 
         if (credentialManager.credentials.login != "") {
@@ -117,8 +120,7 @@ class LoginScreenFragment : Fragment() {
         findNavController().navigate(R.id.action_loginScreenFragment_to_mainScreenFragment)
     }
 
-    private fun isValidSession(session: GazpromSession): Boolean {
-        //TODO: Implement validation
-        return false;
+    private suspend fun isValidSession(session: GazpromSession): Boolean {
+        return GazpromClient(session).isValid();
     }
 }
