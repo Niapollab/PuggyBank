@@ -3,7 +3,6 @@ package ru.vsu.puggybank.fragments
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.provider.Settings.Global
 import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,6 +19,8 @@ import ru.vsu.puggybank.transactions.banking.Credentials
 import ru.vsu.puggybank.transactions.banking.DoubleFactorAuthRequiredException
 import ru.vsu.puggybank.transactions.banking.SharedPreferencesCredentialManager
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
+import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSession
+import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
 
 class LoginScreenFragment : Fragment() {
     private var _binding: FragmentLoginScreenBinding? = null
@@ -30,23 +31,30 @@ class LoginScreenFragment : Fragment() {
     private var _credentialManager: SharedPreferencesCredentialManager? = null
     private val credentialManager get() = _credentialManager!!
 
+    private var _sessionManager: GazpromSharedPreferencesSessionManager? = null
+    private val sessionManager get() = _sessionManager!!
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentLoginScreenBinding.inflate(inflater, container, false)
+
         _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences("credentials.xml", Context.MODE_PRIVATE)!!, "gazprombank")
+        _sessionManager = GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!)
 
-        val creds = credentialManager.getCredentials()
-
-        if (creds.login != "") {
-            firstPhoneNumberFieldTouch = true
-            binding.phoneNumberText.text.append(creds.login)
+        if (isValidSession(sessionManager.session)) {
+            onLogin()
         }
 
-        if (creds.password != "") {
+        if (credentialManager.credentials.login != "") {
             firstPhoneNumberFieldTouch = true
-            binding.editPasswordText.text.append(creds.password)
+            binding.phoneNumberText.text.append(credentialManager.credentials.login)
+        }
+
+        if (credentialManager.credentials.password != "") {
+            firstPhoneNumberFieldTouch = true
+            binding.editPasswordText.text.append(credentialManager.credentials.password)
         }
 
         binding.phoneNumberText.setOnFocusChangeListener(({ _, focus ->
@@ -60,26 +68,13 @@ class LoginScreenFragment : Fragment() {
             val n = binding.phoneNumberText.text.toString()
             val pass = binding.editPasswordText.text.toString()
 
-//            runBlocking {
-//                try {
-//                    authProvider.auth(credentialManager.getCredentials())
-//                } catch (err: DoubleFactorAuthRequiredException) {
-//                    credentialManager.setLogin(n)
-//                    credentialManager.setPassword(pass)
-//                    showDoubleFactorCodeEnterDialog()
-//                } catch (err: Exception) {
-//                    Toast.makeText(context, "Не удалось войти", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-
             GlobalScope.launch (Dispatchers.Main) {
                 try {
                     coroutineScope {
-                        authProvider.auth(Credentials(n, pass))
+                        sessionManager.session = authProvider.auth(Credentials(n, pass))
                     }
                 } catch (err: DoubleFactorAuthRequiredException) {
-                    credentialManager.setLogin(n)
-                    credentialManager.setPassword(pass)
+                    credentialManager.credentials = Credentials(n, pass)
                     showDoubleFactorCodeEnterDialog()
                 } catch (err: Exception) {
                     Toast.makeText(context, "Не удалось войти", Toast.LENGTH_SHORT).show()
@@ -99,21 +94,11 @@ class LoginScreenFragment : Fragment() {
         builder.setView(input)
 
         builder.setPositiveButton("Принять") { _, _ ->
-//            runBlocking {
-//                val code = input.text.toString()
-//                try {
-//                    authProvider.auth(credentialManager.getCredentials(), code)
-//                    onLogin()
-//                } catch (err: AuthException) {
-//                    Toast.makeText(context, "Неверный код", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-
             val code = input.text.toString()
             GlobalScope.launch (Dispatchers.Main) {
                 try {
                     coroutineScope {
-                        authProvider.auth(credentialManager.getCredentials(), code)
+                        sessionManager.session = authProvider.auth(credentialManager.credentials, code)
                         onLogin()
                     }
                 } catch (err: AuthException) {
@@ -130,5 +115,10 @@ class LoginScreenFragment : Fragment() {
 
     private fun onLogin() {
         findNavController().navigate(R.id.action_loginScreenFragment_to_mainScreenFragment)
+    }
+
+    private fun isValidSession(session: GazpromSession): Boolean {
+        //TODO: Implement validation
+        return false;
     }
 }

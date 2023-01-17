@@ -2,28 +2,21 @@ package ru.vsu.puggybank.transactions.banking
 
 import android.content.SharedPreferences
 
-class SharedPreferencesCredentialManager(private val sharedPreferences: SharedPreferences, private val preffix: String = "") :
+class SharedPreferencesCredentialManager(private val sharedPreferences: SharedPreferences, private val prefix: String = "") :
     CredentialProvider {
-    override fun getCredentials(): Credentials {
-        val login = sharedPreferences.getString("${preffix}_login", "")!!
-        val password = sharedPreferences.getString("${preffix}_password", "")!!
+    override var credentials: Credentials
+        get() {
+            val login = sharedPreferences.getString("${prefix}_login", "")!!
+            val password = sharedPreferences.getString("${prefix}_password", "")!!
 
-        return Credentials(login, password)
-    }
+            return Credentials(login, password)
+        }
+        set(value) {
+            val editor = sharedPreferences.edit()
 
-    fun setLogin(login: String) {
-        val editor = sharedPreferences.edit()
+            editor.putString("${prefix}_login", value.login)
+            editor.putString("${prefix}_password", value.password)
 
-        editor.putString("${preffix}_login", login)
-
-        editor.commit()
-    }
-
-    fun setPassword(password: String) {
-        val editor = sharedPreferences.edit()
-
-        editor.putString("${preffix}_password", password)
-
-        editor.commit()
-    }
+            editor.commit()
+        }
 }
