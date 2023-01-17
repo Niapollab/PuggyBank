@@ -13,6 +13,7 @@ import android.app.DatePickerDialog
 import android.widget.TextView
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import ru.vsu.puggybank.R
 import ru.vsu.puggybank.dto.gazprom.GazpromResponse
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
 import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
@@ -105,7 +106,7 @@ class MainScreenFragment : Fragment() {
         val daysQuantity = (ChronoUnit.DAYS.between(dateFrom, dateTo) + 1).toInt()
         for (transaction in allTransactions) {
             val textView = TextView(context)
-            textView.text = "${transaction.description.split("\n")[0]}, ${transaction.amount}"
+            textView.text = getString(R.string.transactionText, transaction.description.split("\n")[0], transaction.amount.toString())
 
             binding.transactionsView.addView(textView)
             val transactionDay = convertTimestamp(transaction.timestamp)
