@@ -1,6 +1,5 @@
 package ru.vsu.puggybank.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -11,15 +10,8 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import android.app.DatePickerDialog
-import android.content.Context
-import android.content.SharedPreferences
-import android.text.InputType
-import android.widget.EditText
-import kotlinx.coroutines.runBlocking
-import ru.vsu.puggybank.transactions.banking.MockCredentialProvider
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import android.widget.TextView
-import io.ktor.http.ContentType.Application.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import ru.vsu.puggybank.R
@@ -27,7 +19,6 @@ import ru.vsu.puggybank.dto.gazprom.GazpromResponse
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
 import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
 import ru.vsu.puggybank.dto.view.Transaction
-import ru.vsu.puggybank.transactions.banking.SharedPreferencesCredentialManager
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 
@@ -139,6 +130,7 @@ class MainScreenFragment : Fragment() {
         binding.aaChartView.aa_drawChartWithChartModel(getChartModel())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getChartModel(): AAChartModel {
         return AAChartModel()
             .chartType(AAChartType.Spline)
@@ -157,7 +149,6 @@ class MainScreenFragment : Fragment() {
             )
     }
 
-
     private fun updateSelectDateFromText() {
         binding.selectDateFrom.text = dateFrom.toString()
         updateTransactions()
@@ -166,7 +157,7 @@ class MainScreenFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMainScreenBinding.inflate(inflater, container, false)
         return binding.root
     }
