@@ -11,12 +11,15 @@ import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.text.InputType
 import android.widget.EditText
 import kotlinx.coroutines.runBlocking
 import ru.vsu.puggybank.transactions.banking.MockCredentialProvider
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import android.widget.TextView
+import io.ktor.http.ContentType.Application.Json
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import ru.vsu.puggybank.R
@@ -24,12 +27,17 @@ import ru.vsu.puggybank.dto.gazprom.GazpromResponse
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
 import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
 import ru.vsu.puggybank.dto.view.Transaction
+import ru.vsu.puggybank.transactions.banking.SharedPreferencesCredentialManager
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 
 class MainScreenFragment : Fragment() {
     private var _binding: FragmentMainScreenBinding? = null
     private val binding get() = _binding!!
+
+    private var _credentialManager: SharedPreferencesCredentialManager? = null
+    private val credentialManager get() = _credentialManager!!
+
     private var dateFrom: LocalDate? = null
     private var dateTo: LocalDate? = null
     private val data = """
@@ -41,10 +49,11 @@ class MainScreenFragment : Fragment() {
     private var inTransactionsByDays: Array<Double> = arrayOf()
     private var outTransactionsByDays: Array<Double> = arrayOf()
     private val authProvider = GazpromAuthProvider()
-    private val mockCredentialsProvider = MockCredentialProvider("", "")
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences("credentials.xml", Context.MODE_PRIVATE)!!, "gazprombank")
+
         initDates()
         val format = Json { isLenient = true }
         val a = format.decodeFromString<GazpromResponse>(data)
@@ -120,7 +129,7 @@ class MainScreenFragment : Fragment() {
             val transactionDay = convertTimestamp(transaction.timestamp)
             val dayOffset = (ChronoUnit.DAYS.between(dateFrom, transactionDay)).toInt()
 
-            if (dayOffset < daysQuantity && dayOffset >= 0) {
+            if (dayOffset in 0 until daysQuantity) {
                 if (transaction.amount > 0) {
                     inTransactionsByDays[dayOffset] += transaction.amount
                 } else {
@@ -153,7 +162,7 @@ class MainScreenFragment : Fragment() {
 
         runBlocking {
             try {
-                authProvider.auth(mockCredentialsProvider.getCredentials())
+                authProvider.auth(credentialManager.getCredentials())
             } catch (e: Exception) {
                 showDoubleFactorCodeEnterDialog()
             }
@@ -174,7 +183,7 @@ class MainScreenFragment : Fragment() {
         builder.setPositiveButton("Submit") { _, _ ->
             runBlocking {
                 val code = input.text.toString()
-                authProvider.auth(mockCredentialsProvider.getCredentials(), code)
+                authProvider.auth(credentialManager.getCredentials(), code)
             }
         }
         builder.setNegativeButton("Cancel") { dialog, _ ->
