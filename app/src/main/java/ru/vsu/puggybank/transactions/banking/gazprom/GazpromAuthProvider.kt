@@ -26,22 +26,22 @@ class GazpromAuthProvider : Closeable {
     }
     private var csrf: String? = null
 
-    suspend fun auth(credentials: Credentials) {
+    suspend fun auth(credentials: Credentials): GazpromSession {
         csrf = csrf ?: getCsrfTokenAsync()
 
         val body = getLoginInitResponse(credentials)
         validateLoginInitResponse(body)
 
-        // TODO: Return session data
+        return buildSession()
     }
 
-    suspend fun auth(credentials: Credentials, doubleFactoryCode: String) {
+    suspend fun auth(credentials: Credentials, doubleFactoryCode: String): GazpromSession {
         csrf = csrf ?: getCsrfTokenAsync()
 
         val body = getLoginInitResponse(credentials, doubleFactoryCode)
         validateLoginInitResponse(body)
 
-        // TODO: Return session data
+        return buildSession()
     }
 
     private suspend fun getLoginInitResponse(credentials: Credentials, code: String? = null): String {
@@ -82,6 +82,11 @@ class GazpromAuthProvider : Closeable {
 
         return Regex("content=\\\"(.*?)\\\"").find(metaTag)?.groups?.get(1)?.value
             ?: throw AuthException("Unable to find content in meta-tag for csrf parsing.")
+    }
+
+    private suspend fun buildSession(): GazpromSession {
+        val cookies = client.cookies("https://$DOMAIN/").associateBy { it.name }
+        return GazpromSession(csrf!!, cookies["HSESSIONID"]!!.value, cookies["session-cookie"]!!.value, cookies["WEBSESSIONID"]!!.value)
     }
 
     override fun close() {
