@@ -4,7 +4,7 @@ import ru.vsu.puggybank.dto.view.Transaction
 import java.time.LocalDate
 
 @Serializable
-data class GazpromResponse(
+data class GazpromHistoryResponse(
     val result: Int,
     val hasNextData: Boolean,
     val id: String,
@@ -13,7 +13,7 @@ data class GazpromResponse(
     val techInfo: TechInfo
     )
 
-fun mapGazpromResponseToTransactions(response: GazpromResponse): List<Transaction> {
+fun mapGazpromHistoryResponseToTransactions(response: GazpromHistoryResponse): List<Transaction> {
     return response.history.map {t -> Transaction(t.tid, t.amount, t.description, t.currency, t.type, t.timestamp) }
 }
 

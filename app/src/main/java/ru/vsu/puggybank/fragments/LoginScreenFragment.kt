@@ -12,6 +12,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.*
+import ru.vsu.puggybank.MainActivity
 import ru.vsu.puggybank.R
 import ru.vsu.puggybank.databinding.FragmentLoginScreenBinding
 import ru.vsu.puggybank.transactions.banking.AuthException

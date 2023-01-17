@@ -9,8 +9,9 @@ class GazpromSharedPreferencesSessionManager(private val sharedPreferences: Shar
             val hSessionId = sharedPreferences.getString("gazprom_hSessionId", "")!!
             val sessionCookie = sharedPreferences.getString("gazprom_sessionCookie", "")!!
             val webSession = sharedPreferences.getString("gazprom_webSession", "")!!
+            val idw = sharedPreferences.getString("idw", "")!!
 
-            return GazpromSession(csrf, hSessionId, sessionCookie, webSession)
+            return GazpromSession(csrf, hSessionId, sessionCookie, webSession, idw)
         }
         set(value) {
             val editor = sharedPreferences.edit()
@@ -19,6 +20,7 @@ class GazpromSharedPreferencesSessionManager(private val sharedPreferences: Shar
             editor.putString("gazprom_hSessionId", value.hSessionId)
             editor.putString("gazprom_sessionCookie", value.sessionCookie)
             editor.putString("gazprom_webSession", value.webSession)
+            editor.putString("gazprom_idw", value.idw)
 
             editor.commit()
         }

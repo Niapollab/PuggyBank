@@ -10,6 +10,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.runBlocking
 import ru.vsu.puggybank.transactions.banking.AuthException
 import ru.vsu.puggybank.transactions.banking.Credentials
 import ru.vsu.puggybank.transactions.banking.DoubleFactorAuthRequiredException
@@ -18,6 +19,7 @@ const val DOMAIN = "online.gpb.ru"
 const val LOGIN_URL = "https://$DOMAIN/login"
 const val LOGIN_INIT_URL = "https://$DOMAIN/api/profile/login/init"
 const val CONFIRM_LOGIN_URL = "https://$DOMAIN/api/profile/login/confirm"
+const val IDW_URL = "https://$DOMAIN/api/fl/idw-gpb-web"
 
 class GazpromAuthProvider : Closeable {
     private val client = HttpClient(CIO) {
@@ -64,6 +66,18 @@ class GazpromAuthProvider : Closeable {
         return response.body()
     }
 
+    private fun getIDW() {
+        runBlocking {
+            val res = client.get(IDW_URL) {
+                headers {
+                    append("X-CSRF-TOKEN", csrf!!)
+                }
+            }
+
+            val a = res
+        }
+    }
+
     private fun validateLoginInitResponse(loginInitResponseBody: String) {
         if (loginInitResponseBody.contains("clientIdHash")) {
             return
@@ -85,8 +99,12 @@ class GazpromAuthProvider : Closeable {
     }
 
     private suspend fun buildSession(): GazpromSession {
+        runBlocking {
+            getIDW()
+        }
         val cookies = client.cookies("https://$DOMAIN/").associateBy { it.name }
-        return GazpromSession(csrf!!, cookies["HSESSIONID"]!!.value, cookies["session-cookie"]!!.value, cookies["WEBSESSIONID"]!!.value)
+        // FIXME cookies["cfidsw-gpb-web"] == null
+        return GazpromSession(csrf!!, cookies["HSESSIONID"]!!.value, cookies["session-cookie"]!!.value, cookies["WEBSESSIONID"]!!.value, cookies["cfidsw-gpb-web"]!!.value)
     }
 
     override fun close() {
