@@ -22,7 +22,7 @@ class LockScreenFragment : Fragment() {
     private val binding get() = _binding!!
     private val pinSymbols: Array<TextView> get() = _pinSymbols!!
     private val pinCodeBuilder = PinCodeBuilder(4)
-    private val pinValidator: PinCodeValidator = MockPinCodeValidator("1234")
+    private val pinValidator: PinCodeValidator = MockPinCodeValidator("2007")
 
     override fun onCreateView(
         inflater: LayoutInflater,
