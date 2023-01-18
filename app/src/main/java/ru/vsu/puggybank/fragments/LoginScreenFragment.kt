@@ -23,6 +23,9 @@ import ru.vsu.puggybank.transactions.banking.gazprom.GazpromClient
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSession
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
 
+const val GAZPROM_PREFIX = "gazprombank"
+const val CREDENTIALS_FILE = "credentials.xml"
+
 class LoginScreenFragment : Fragment() {
     private var _binding: FragmentLoginScreenBinding? = null
     private val binding get() = _binding!!
@@ -41,8 +44,8 @@ class LoginScreenFragment : Fragment() {
     ): View {
         _binding = FragmentLoginScreenBinding.inflate(inflater, container, false)
 
-        _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences("credentials.xml", Context.MODE_PRIVATE)!!, "gazprombank")
-        _sessionManager = GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!)
+        _credentialManager = SharedPreferencesCredentialManager(activity?.getSharedPreferences(CREDENTIALS_FILE, Context.MODE_PRIVATE)!!, )
+        _sessionManager = GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("${GAZPROM_PREFIX}_session.xml", Context.MODE_PRIVATE)!!)
 
         runBlocking {
             if (isValidSession(sessionManager.session)) {
@@ -80,7 +83,7 @@ class LoginScreenFragment : Fragment() {
                     credentialManager.credentials = Credentials(n, pass)
                     showDoubleFactorCodeEnterDialog()
                 } catch (err: Exception) {
-                    Toast.makeText(context, "Не удалось войти", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.unableToAuth, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -90,13 +93,13 @@ class LoginScreenFragment : Fragment() {
 
     private suspend fun showDoubleFactorCodeEnterDialog() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
-        builder.setTitle("Введите код")
+        builder.setTitle(R.string.enter2faCode)
 
         val input = EditText(activity)
         input.inputType = InputType.TYPE_CLASS_TEXT
         builder.setView(input)
 
-        builder.setPositiveButton("Принять") { _, _ ->
+        builder.setPositiveButton(R.string.submit) { _, _ ->
             val code = input.text.toString()
             GlobalScope.launch (Dispatchers.Main) {
                 try {
@@ -105,11 +108,11 @@ class LoginScreenFragment : Fragment() {
                         onLogin()
                     }
                 } catch (err: AuthException) {
-                    Toast.makeText(context, "Неверный код", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.incorrect2faCode, Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        builder.setNegativeButton("Отмена") { dialog, _ ->
+        builder.setNegativeButton(R.string.cancel) { dialog, _ ->
             dialog.cancel()
         }
 

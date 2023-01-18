@@ -22,4 +22,19 @@
     <string name="phoneNumberText">Номер телефона</string>
     <string name="passwordText">Пароль</string>
     <string name="startPhoneNumber">+7</string>
+    <string name="incorrectPIN">Некорректный PIN</string>
+    <string name="unableToAuth">Не удалось войти</string>
+    <string name="enter2faCode">Введите код</string>
+    <string name="submit">Принять</string>
+    <string name="incorrect2faCode">Неверный код</string>
+    <string name="cancel">Отмена</string>
+    <string name="rubleSign">₽</string>
+    <string name="consumption">Расход</string>
+    <string name="income">Доход</string>
+    <string name="fingerprintLogin">Вход по отпечатку пальца</string>
+    <string name="usePIN">Использовать PIN</string>
+    <string name="requires2faAuthentication">Требуется двухфакторная аутентификация</string>
+    <string name="noClientId">Авторизация не удалась. Ответ сервера не содержит идентификатор пользователя</string>
+    <string name="noMetaTagCsrf">Unable to find meta in response body for csrf parsing.</string>
+    <string name="noCsrfInMetaTag">Не удалось найти содержимое в мета-теге для разбора csrf</string>
 </resources>

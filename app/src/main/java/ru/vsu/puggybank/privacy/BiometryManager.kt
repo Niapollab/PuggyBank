@@ -3,6 +3,7 @@ package ru.vsu.puggybank.privacy
 import android.widget.Toast
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import ru.vsu.puggybank.R
 import ru.vsu.puggybank.fragments.LockScreenFragment
 
 class BiometryManager(private val cb: () -> Unit, private val fragment: LockScreenFragment) {
@@ -19,15 +20,15 @@ class BiometryManager(private val cb: () -> Unit, private val fragment: LockScre
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Toast.makeText(ctx, "Вход не был совершен",
+                    Toast.makeText(ctx, R.string.unableToAuth,
                         Toast.LENGTH_SHORT)
                         .show()
                 }
             })
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Вход по отпечатку пальца")
-            .setNegativeButtonText("Использовать пин")
+            .setTitle(R.string.fingerprintLogin)
+            .setNegativeButtonText(R.string.usePIN)
             .build()
 
         biometricPrompt.authenticate(promptInfo)

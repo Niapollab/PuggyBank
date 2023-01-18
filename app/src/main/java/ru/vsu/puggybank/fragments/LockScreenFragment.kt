@@ -85,7 +85,7 @@ class LockScreenFragment : Fragment() {
     }
 
     private fun handeIncorrectPin() {
-        Toast.makeText(activity, "Incorrect PIN", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, R.string.incorrectPIN, Toast.LENGTH_SHORT).show()
 
         pinCodeBuilder.dropPin()
         for (symbol in pinSymbols)

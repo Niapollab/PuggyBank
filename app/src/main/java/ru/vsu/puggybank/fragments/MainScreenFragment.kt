@@ -30,8 +30,6 @@ import kotlin.math.max
 
 class MainScreenFragment : Fragment() {
     private var _binding: FragmentMainScreenBinding? = null
-    private val binding get() = _binding!!
-
     private var dateFrom: LocalDate? = null
     private var dateTo: LocalDate? = null
     private var allTransactions: List<Transaction> = listOf()
@@ -39,8 +37,9 @@ class MainScreenFragment : Fragment() {
     private var categories: Array<String> = arrayOf()
     private var inTransactionsByDays: Array<Double> = arrayOf()
     private var outTransactionsByDays: Array<Double> = arrayOf()
-    private val authProvider = GazpromAuthProvider()
     private var transactionsProvider: TransactionsProvider? = null
+    private val authProvider = GazpromAuthProvider()
+    private val binding get() = _binding!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -140,17 +139,17 @@ class MainScreenFragment : Fragment() {
     private fun getChartModel(): AAChartModel {
         return AAChartModel()
             .chartType(AAChartType.Spline)
-            .title("₽")
+            .title(R.string.rubleSign)
             .backgroundColor("#ffffff")
             .categories(categories)
             .dataLabelsEnabled(false)
             .yAxisTitle("")
             .series(arrayOf(
                 AASeriesElement()
-                    .name("Расход")
+                    .name(R.string.consumption)
                     .data(outTransactionsByDays as Array<Any>),
                 AASeriesElement()
-                    .name("Приход")
+                    .name(R.string.income)
                     .data(inTransactionsByDays as Array<Any>)),
             )
     }
