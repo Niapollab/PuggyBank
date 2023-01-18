@@ -17,6 +17,6 @@ class SharedPreferencesCredentialManager(private val sharedPreferences: SharedPr
             editor.putString("${prefix}_login", value.login)
             editor.putString("${prefix}_password", value.password)
 
-            editor.commit()
+            editor.apply()
         }
 }

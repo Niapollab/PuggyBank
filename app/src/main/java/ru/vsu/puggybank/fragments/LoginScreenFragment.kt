@@ -63,12 +63,12 @@ class LoginScreenFragment : Fragment() {
             binding.editPasswordText.text.append(credentialManager.credentials.password)
         }
 
-        binding.phoneNumberText.setOnFocusChangeListener(({ _, focus ->
+        binding.phoneNumberText.onFocusChangeListener = (View.OnFocusChangeListener { _, focus ->
             if (!firstPhoneNumberFieldTouch && focus) {
                 firstPhoneNumberFieldTouch = true
                 binding.phoneNumberText.text.append(getString(R.string.startPhoneNumber))
             }
-        }))
+        })
 
         binding.tryLoginButton.setOnClickListener {
             val n = binding.phoneNumberText.text.toString()
@@ -76,9 +76,7 @@ class LoginScreenFragment : Fragment() {
 
             GlobalScope.launch (Dispatchers.Main) {
                 try {
-                    coroutineScope {
-                        sessionManager.session = authProvider.auth(Credentials(n, pass))
-                    }
+                    sessionManager.session = authProvider.auth(Credentials(n, pass))
                 } catch (err: DoubleFactorAuthRequiredException) {
                     credentialManager.credentials = Credentials(n, pass)
                     showDoubleFactorCodeEnterDialog()
@@ -103,10 +101,8 @@ class LoginScreenFragment : Fragment() {
             val code = input.text.toString()
             GlobalScope.launch (Dispatchers.Main) {
                 try {
-                    coroutineScope {
-                        sessionManager.session = authProvider.auth(credentialManager.credentials, code)
-                        onLogin()
-                    }
+                    sessionManager.session = authProvider.auth(credentialManager.credentials, code)
+                    onLogin()
                 } catch (err: AuthException) {
                     Toast.makeText(context, R.string.incorrect2faCode, Toast.LENGTH_SHORT).show()
                 }

@@ -11,14 +11,4 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {}
-
-    override fun onRestoreInstanceState(
-        savedInstanceState: Bundle?,
-        persistentState: PersistableBundle?
-    ) {
-        if (savedInstanceState == null) {
-            return
-        }
-        super.onSaveInstanceState(savedInstanceState)
-    }
 }

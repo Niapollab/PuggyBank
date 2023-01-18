@@ -9,14 +9,10 @@ import android.view.ViewGroup
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
-import android.app.DatePickerDialog
 import android.content.Context
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import android.widget.TextView
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import ru.vsu.puggybank.R
-import ru.vsu.puggybank.dto.gazprom.GazpromResponse
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
 import ru.vsu.puggybank.dto.gazprom.formatTimestamp
 import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
@@ -24,6 +20,8 @@ import ru.vsu.puggybank.dto.view.Transaction
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromClient
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
 import ru.vsu.puggybank.transactions.banking.interfaces.TransactionsProvider
+import ru.vsu.puggybank.utils.data.DatePickerDialogBuilder
+import ru.vsu.puggybank.utils.json.ResponseMapper
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlin.math.max
@@ -43,33 +41,34 @@ class MainScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("${GAZPROM_PREFIX}_session.xml", Context.MODE_PRIVATE)!!).session)
+        val gazpromSharedPreferences = activity?.getSharedPreferences("${GAZPROM_PREFIX}_session.xml", Context.MODE_PRIVATE)!!
+        transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(gazpromSharedPreferences).session)
 
         initDates()
-        val format = Json { isLenient = true }
-        val a = format.decodeFromString<GazpromResponse>(transactionsProvider!!.getTransactionsJSONString())
-        allTransactions = mapGazpromResponseToTransactions(a)
-        updateTransactions()
+
+        val json = transactionsProvider!!.getTransactionsJSONString()
+        allTransactions = ResponseMapper.mapResponse(json, ::mapGazpromResponseToTransactions)
+        updateTransactionsList()
 
         updateSelectDateToText()
         binding.selectDateFrom.text = dateFrom.toString()
 
         binding.selectDateTo.setOnClickListener {
-            val dpd = DatePickerDialog(requireActivity(), { _ , year, month, day ->
-                dateTo = LocalDate.of(year, month + 1, day)
+            val dpd = DatePickerDialogBuilder.build(requireActivity(), dateTo!!) {
+                dateTo = it
                 updateSelectDateToText()
-                update()
-            }, dateTo!!.year, dateTo!!.monthValue - 1, dateTo!!.dayOfMonth)
+                updateTransactions()
+            }
 
             dpd.show()
         }
 
         binding.selectDateFrom.setOnClickListener {
-            val dpd = DatePickerDialog(requireActivity(), { _, year, month, day ->
-                dateFrom = LocalDate.of(year, month + 1, day)
+            val dpd = DatePickerDialogBuilder.build(requireActivity(), dateFrom!!) {
+                dateFrom = it
                 updateSelectDateFromText()
-                update()
-            }, dateFrom!!.year, dateFrom!!.monthValue - 1 , dateFrom!!.dayOfMonth)
+                updateTransactions()
+            }
 
             dpd.show()
         }
@@ -84,16 +83,16 @@ class MainScreenFragment : Fragment() {
 
     private fun updateSelectDateToText() {
         binding.selectDateTo.text = dateTo.toString()
-        updateTransactions()
+        updateTransactionsList()
     }
 
-    private fun update() {
-        updateTransactions()
+    private fun updateTransactions() {
+        updateTransactionsList()
         updateTransactionsView()
         binding.aaChartView.aa_refreshChartWithChartModel(getChartModel())
     }
 
-    private fun updateTransactions() {
+    private fun updateTransactionsList() {
         val daysQuantity = max((ChronoUnit.DAYS.between(dateFrom, dateTo) + 1).toInt(), 0)
         var currentDay = 0
 
@@ -156,7 +155,7 @@ class MainScreenFragment : Fragment() {
 
     private fun updateSelectDateFromText() {
         binding.selectDateFrom.text = dateFrom.toString()
-        updateTransactions()
+        updateTransactionsList()
     }
 
     override fun onCreateView(

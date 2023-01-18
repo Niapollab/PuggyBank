@@ -21,6 +21,6 @@ class GazpromSharedPreferencesSessionManager(private val sharedPreferences: Shar
             editor.putString("${GAZPROM_PREFIX}_sessionCookie", value.sessionCookie)
             editor.putString("${GAZPROM_PREFIX}_webSession", value.webSession)
 
-            editor.commit()
+            editor.apply()
         }
 }

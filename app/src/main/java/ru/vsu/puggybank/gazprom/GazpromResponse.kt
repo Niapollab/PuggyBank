@@ -1,5 +1,4 @@
 package ru.vsu.puggybank.dto.gazprom
-import android.util.Log
 import kotlinx.serialization.*
 import ru.vsu.puggybank.dto.view.Transaction
 import java.time.LocalDate
