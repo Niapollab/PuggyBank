@@ -6,5 +6,5 @@ data class Transaction (
     val description: String,
     val currency: String,
     val type: String,
-    val timestamp: String,
+    val timestamp: String
 )

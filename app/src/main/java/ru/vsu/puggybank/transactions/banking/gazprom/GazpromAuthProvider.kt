@@ -10,7 +10,6 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
-import ru.vsu.puggybank.R
 import ru.vsu.puggybank.transactions.banking.AuthException
 import ru.vsu.puggybank.transactions.banking.Credentials
 import ru.vsu.puggybank.transactions.banking.DoubleFactorAuthRequiredException
@@ -69,9 +68,9 @@ class GazpromAuthProvider : Closeable {
         if (loginInitResponseBody.contains("clientIdHash")) {
             return
         } else if (loginInitResponseBody.contains("needConfirmOtp")) {
-            throw DoubleFactorAuthRequiredException(R.string.requires2faAuthentication)
+            throw DoubleFactorAuthRequiredException("Requires two-factor authentication.")
         } else {
-            throw AuthException(R.string.noClientId)
+            throw AuthException("Authorization failed. Server response does not contain user ID.")
         }
     }
 
@@ -79,10 +78,10 @@ class GazpromAuthProvider : Closeable {
         val response: HttpResponse = client.get(LOGIN_URL)
         val body = response.body<String>()
 
-        val metaTag = Regex("<meta.*?_csrf.*?>").find(body)?.value ?: throw AuthException(R.string.noMetaTagCsrf)
+        val metaTag = Regex("<meta.*?_csrf.*?>").find(body)?.value ?: throw AuthException("Unable to find meta in response body for csrf parsing.")
 
         return Regex("content=\\\"(.*?)\\\"").find(metaTag)?.groups?.get(1)?.value
-            ?: throw AuthException(R.string.noCsrfInMetaTag)
+            ?: throw AuthException("Unable to find content in meta-tag for csrf parsing.")
     }
 
     private suspend fun buildSession(): GazpromSession {

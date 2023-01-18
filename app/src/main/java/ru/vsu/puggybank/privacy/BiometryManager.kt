@@ -26,9 +26,11 @@ class BiometryManager(private val cb: () -> Unit, private val fragment: LockScre
                 }
             })
 
+        val context = fragment.requireContext()
+
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(R.string.fingerprintLogin)
-            .setNegativeButtonText(R.string.usePIN)
+            .setTitle(context.resources.getString(R.string.fingerprintLogin))
+            .setNegativeButtonText(context.resources.getString(R.string.usePIN))
             .build()
 
         biometricPrompt.authenticate(promptInfo)

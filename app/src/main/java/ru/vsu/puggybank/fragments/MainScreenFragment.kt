@@ -43,7 +43,7 @@ class MainScreenFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!).session)
+        transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("${GAZPROM_PREFIX}_session.xml", Context.MODE_PRIVATE)!!).session)
 
         initDates()
         val format = Json { isLenient = true }
@@ -139,17 +139,17 @@ class MainScreenFragment : Fragment() {
     private fun getChartModel(): AAChartModel {
         return AAChartModel()
             .chartType(AAChartType.Spline)
-            .title(R.string.rubleSign)
+            .title(resources.getString(R.string.rubleSign))
             .backgroundColor("#ffffff")
             .categories(categories)
             .dataLabelsEnabled(false)
             .yAxisTitle("")
             .series(arrayOf(
                 AASeriesElement()
-                    .name(R.string.consumption)
+                    .name(resources.getString(R.string.consumption))
                     .data(outTransactionsByDays as Array<Any>),
                 AASeriesElement()
-                    .name(R.string.income)
+                    .name(resources.getString(R.string.income))
                     .data(inTransactionsByDays as Array<Any>)),
             )
     }

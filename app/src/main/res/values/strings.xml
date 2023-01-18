@@ -33,8 +33,4 @@
     <string name="income">Доход</string>
     <string name="fingerprintLogin">Вход по отпечатку пальца</string>
     <string name="usePIN">Использовать PIN</string>
-    <string name="requires2faAuthentication">Требуется двухфакторная аутентификация</string>
-    <string name="noClientId">Авторизация не удалась. Ответ сервера не содержит идентификатор пользователя</string>
-    <string name="noMetaTagCsrf">Unable to find meta in response body for csrf parsing.</string>
-    <string name="noCsrfInMetaTag">Не удалось найти содержимое в мета-теге для разбора csrf</string>
 </resources>
