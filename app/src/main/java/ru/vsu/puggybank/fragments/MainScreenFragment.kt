@@ -23,6 +23,7 @@ import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
 import ru.vsu.puggybank.dto.view.Transaction
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromClient
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
+import ru.vsu.puggybank.transactions.banking.interfaces.TransactionsProvider
 import java.time.temporal.ChronoUnit
 import java.time.LocalDate
 import kotlin.math.max
@@ -39,15 +40,15 @@ class MainScreenFragment : Fragment() {
     private var inTransactionsByDays: Array<Double> = arrayOf()
     private var outTransactionsByDays: Array<Double> = arrayOf()
     private val authProvider = GazpromAuthProvider()
-    private var gazpromClient: GazpromClient? = null
+    private var transactionsProvider: TransactionsProvider? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        gazpromClient = GazpromClient(GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!).session)
+        transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(activity?.getSharedPreferences("gazprom_session.xml", Context.MODE_PRIVATE)!!).session)
 
         initDates()
         val format = Json { isLenient = true }
-        val a = format.decodeFromString<GazpromResponse>(gazpromClient!!.getTransactionsJSONString())
+        val a = format.decodeFromString<GazpromResponse>(transactionsProvider!!.getTransactionsJSONString())
         allTransactions = mapGazpromResponseToTransactions(a)
         updateTransactions()
 

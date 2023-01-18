@@ -24,7 +24,7 @@ class GazpromClient(private val session: GazpromSession): TransactionsProvider {
         BrowserUserAgent()
     }
 
-    suspend fun isValid(): Boolean {
+    override suspend fun isValid(): Boolean {
         val response: HttpResponse = client.post(PROFILE_URL) {
             headers {
                 append("X-CSRF-TOKEN", session.csrf)
