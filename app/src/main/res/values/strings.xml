@@ -16,7 +16,7 @@
     <string name="dateFrom">С</string>
     <string name="selectDateTo">1970–01–01</string>
     <string name="selectDateFrom">1970–01–01</string>
-    <string name="transactionText">%s, %s</string>
+    <string name="transactionText">%s, %s, %s</string>
     <string name="LoginText">Вход</string>
     <string name="tryLoginButton">Войти</string>
     <string name="phoneNumberText">Номер телефона</string>
