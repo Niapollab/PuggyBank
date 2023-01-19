@@ -8,7 +8,7 @@ class DatePickerDialogBuilder {
     companion object {
         fun build(context: Context, startDate: LocalDate, listener: (LocalDate) -> Unit): DatePickerDialog {
             return DatePickerDialog(context, { _, year, month, day ->
-                listener(LocalDate.of(year, month, day))
+                listener(LocalDate.of(year, month + 1, day))
             }, startDate.year, startDate.monthValue - 1 , startDate.dayOfMonth)
         }
     }

@@ -1,30 +1,32 @@
 package ru.vsu.puggybank.fragments
 
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.View
-import ru.vsu.puggybank.databinding.FragmentMainScreenBinding
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartModel
 import com.github.aachartmodel.aainfographics.aachartcreator.AAChartType
 import com.github.aachartmodel.aainfographics.aachartcreator.AASeriesElement
-import android.content.Context
-import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
-import android.widget.TextView
 import ru.vsu.puggybank.R
+import ru.vsu.puggybank.databinding.FragmentMainScreenBinding
 import ru.vsu.puggybank.dto.gazprom.convertTimestamp
 import ru.vsu.puggybank.dto.gazprom.formatTimestamp
 import ru.vsu.puggybank.dto.gazprom.mapGazpromResponseToTransactions
 import ru.vsu.puggybank.dto.view.Transaction
+import ru.vsu.puggybank.transactions.banking.gazprom.GazpromAuthProvider
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromClient
 import ru.vsu.puggybank.transactions.banking.gazprom.GazpromSharedPreferencesSessionManager
 import ru.vsu.puggybank.transactions.banking.interfaces.TransactionsProvider
+import ru.vsu.puggybank.utils.TransactionArrayAdapter
 import ru.vsu.puggybank.utils.data.DatePickerDialogBuilder
 import ru.vsu.puggybank.utils.json.ResponseMapper
-import java.time.temporal.ChronoUnit
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import kotlin.math.max
+
 
 class MainScreenFragment : Fragment() {
     private var _binding: FragmentMainScreenBinding? = null
@@ -36,6 +38,8 @@ class MainScreenFragment : Fragment() {
     private var inTransactionsByDays: Array<Double> = arrayOf()
     private var outTransactionsByDays: Array<Double> = arrayOf()
     private var transactionsProvider: TransactionsProvider? = null
+    private var _transactionArrayAdapter: TransactionArrayAdapter? = null
+    private val transactionArrayAdapter get() = _transactionArrayAdapter!!
     private val authProvider = GazpromAuthProvider()
     private val binding get() = _binding!!
 
@@ -43,6 +47,8 @@ class MainScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val gazpromSharedPreferences = activity?.getSharedPreferences("${GAZPROM_PREFIX}_session.xml", Context.MODE_PRIVATE)!!
         transactionsProvider = GazpromClient(GazpromSharedPreferencesSessionManager(gazpromSharedPreferences).session)
+        _transactionArrayAdapter = TransactionArrayAdapter(requireContext())
+        binding.listView.adapter = _transactionArrayAdapter
 
         initDates()
 
@@ -81,11 +87,6 @@ class MainScreenFragment : Fragment() {
         dateTo = now
     }
 
-    private fun updateSelectDateToText() {
-        binding.selectDateTo.text = dateTo.toString()
-        updateTransactionsList()
-    }
-
     private fun updateTransactions() {
         updateTransactionsList()
         updateTransactionsView()
@@ -101,6 +102,7 @@ class MainScreenFragment : Fragment() {
         inTransactionsByDays = Array(daysQuantity) { 0.0 }
         outTransactionsByDays = Array(daysQuantity) { 0.0 }
         filteredTransactions = allTransactions.filter { dateFrom!! < convertTimestamp(it.timestamp) && dateTo!! > convertTimestamp(it.timestamp)  }
+        transactionArrayAdapter.transactions = filteredTransactions
 
         while (currentDay < daysQuantity) {
             val day = LocalDate.from(dateFrom).plusDays(currentDay.toLong())
@@ -111,12 +113,11 @@ class MainScreenFragment : Fragment() {
 
     private fun updateTransactionsView() {
         val daysQuantity = (ChronoUnit.DAYS.between(dateFrom, dateTo) + 1).toInt()
-        binding.transactionsView.removeAllViews()
+
         for (transaction in filteredTransactions) {
             val textView = TextView(context)
             textView.text = getString(R.string.transactionText, transaction.description.split("\n")[0], transaction.amount.toString(), formatTimestamp(transaction.timestamp))
 
-            binding.transactionsView.addView(textView)
             val transactionDay = convertTimestamp(transaction.timestamp)
             val dayOffset = (ChronoUnit.DAYS.between(dateFrom, transactionDay)).toInt()
 
@@ -128,6 +129,7 @@ class MainScreenFragment : Fragment() {
                 }
             }
         }
+
     }
 
     private fun initChart() {
@@ -143,19 +145,24 @@ class MainScreenFragment : Fragment() {
             .categories(categories)
             .dataLabelsEnabled(false)
             .yAxisTitle("")
-            .series(arrayOf(
-                AASeriesElement()
-                    .name(resources.getString(R.string.consumption))
-                    .data(outTransactionsByDays as Array<Any>),
-                AASeriesElement()
-                    .name(resources.getString(R.string.income))
-                    .data(inTransactionsByDays as Array<Any>)),
+            .series(
+                arrayOf(
+                    AASeriesElement()
+                        .name(resources.getString(R.string.consumption))
+                        .data(outTransactionsByDays as Array<Any>),
+                    AASeriesElement()
+                        .name(resources.getString(R.string.income))
+                        .data(inTransactionsByDays as Array<Any>)
+                ),
             )
     }
 
     private fun updateSelectDateFromText() {
         binding.selectDateFrom.text = dateFrom.toString()
-        updateTransactionsList()
+    }
+
+    private fun updateSelectDateToText() {
+        binding.selectDateTo.text = dateTo.toString()
     }
 
     override fun onCreateView(
@@ -172,3 +179,4 @@ class MainScreenFragment : Fragment() {
         _binding = null
     }
 }
+
